@@ -6,19 +6,19 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		8EA721D42FE15CBB00E1E51C /* MedicationOverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EA721D32FE15CBB00E1E51C /* MedicationOverviewView.swift */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXFileReference section */
 		8E108A3F2FCAE87D000859C2 /* Mediflow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mediflow.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		8EA721D32FE15CBB00E1E51C /* MedicationOverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicationOverviewView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8E108A412FCAE87D000859C2 /* Mediflow */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Mediflow;
+			sourceTree = "<group>";
+		};
+		8EE9E5FD2FE5000500BB0FFA /* Product */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Product;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -37,9 +37,9 @@
 		8E108A362FCAE87D000859C2 = {
 			isa = PBXGroup;
 			children = (
+				8EE9E5FD2FE5000500BB0FFA /* Product */,
 				8E108A412FCAE87D000859C2 /* Mediflow */,
 				8E108A402FCAE87D000859C2 /* Products */,
-				8EA721D32FE15CBB00E1E51C /* MedicationOverviewView.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -68,6 +68,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				8E108A412FCAE87D000859C2 /* Mediflow */,
+				8EE9E5FD2FE5000500BB0FFA /* Product */,
 			);
 			name = Mediflow;
 			packageProductDependencies = (
@@ -125,7 +126,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8EA721D42FE15CBB00E1E51C /* MedicationOverviewView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
