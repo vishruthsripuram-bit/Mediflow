@@ -1,5 +1,4 @@
 // CameraPreview.swift
-// A lightweight live camera preview for embedding in SwiftUI
 
 import SwiftUI
 import AVFoundation
