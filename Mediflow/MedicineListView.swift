@@ -1,12 +1,6 @@
-//
-//  MedicineListView.swift
-//  Mediflow
-//
-//  Created by vishruth on 31/5/2026.
-//
-
 import SwiftUI
 import CoreData
+import UserNotifications
 
 struct MedicineListView: View {
     @Binding var currentView: String
@@ -18,13 +12,42 @@ struct MedicineListView: View {
     @State private var medicationToEdit: MyMedication? = nil
     @State private var navigateToAdd: Bool = false
 
+    private func cancelNotifications(for id: String) {
+        var ids = [id]
+        ids += (0..<30).map { "\(id)_time_\($0)" }
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ids)
+    }
+
     private func delete(_ meds: [MyMedication]) {
-        for med in meds { viewContext.delete(med) }
+        for med in meds {
+            if let id = med.medicine_ID {
+                cancelNotifications(for: id)
+            }
+            viewContext.delete(med)
+        }
         do {
             try viewContext.save()
         } catch {
-            // You might want to handle the error appropriately in production
             print("Failed to delete medication(s):", error.localizedDescription)
+        }
+    }
+
+    private func removeExpiredMedications() {
+        let today = Calendar.current.startOfDay(for: Date())
+        for med in medications {
+            guard med.has_end_date, let endDate = med.end_date else { continue }
+            let end = Calendar.current.startOfDay(for: endDate)
+            if end < today {
+                if let id = med.medicine_ID {
+                    cancelNotifications(for: id)
+                }
+                viewContext.delete(med)
+            }
+        }
+        do {
+            try viewContext.save()
+        } catch {
+            print("Failed to remove expired medications:", error.localizedDescription)
         }
     }
 
@@ -75,14 +98,13 @@ struct MedicineListView: View {
                                 }
                             }
                             .onDelete { indexSet in
-                                let itemsToDelete = indexSet.map { medications[$0] }
-                                delete(itemsToDelete)
+                                delete(indexSet.map { medications[$0] })
                             }
                         }
                     }
                 }
             }
-            .navigationTitle("My medications")
+            .navigationTitle("My Medications")
             .toolbar { EditButton() }
             .navigationDestination(item: $medicationToEdit) { med in
                 Medication_form(existingMedication: med)
@@ -92,7 +114,9 @@ struct MedicineListView: View {
                 Medication_form()
                     .environment(\.managedObjectContext, viewContext)
             }
-
+            .onAppear {
+                removeExpiredMedications()
+            }
 
             HStack {
                 NavigationLink(destination: ScanView()) {
@@ -105,9 +129,7 @@ struct MedicineListView: View {
                         .shadow(radius: 4)
                 }
                 .padding()
-
                 Spacer()
-
                 Button {
                     navigateToAdd = true
                 } label: {

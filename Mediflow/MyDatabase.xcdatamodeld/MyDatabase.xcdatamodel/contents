@@ -3,6 +3,7 @@
     <entity name="DoseLog" representedClassName="DoseLog" syncable="YES" codeGenerationType="class">
         <attribute name="actual_time" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="log_ID" optional="YES" attributeType="String"/>
+        <attribute name="medication_name" optional="YES" attributeType="String"/>
         <attribute name="medicine_ID" optional="YES" attributeType="String"/>
         <attribute name="reason_code" optional="YES" attributeType="String"/>
         <attribute name="scheduled_time" optional="YES" attributeType="Date" usesScalarValueType="NO"/>

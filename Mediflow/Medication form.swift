@@ -1,10 +1,3 @@
-//
-//  Medication form.swift
-//  Mediflow
-//
-//  Created by vishruth on 2/6/2026.
-//
-
 import SwiftUI
 import CoreData
 import UserNotifications
@@ -14,7 +7,7 @@ struct Medication_form: View {
 
     @State private var MedicineName: String = ""
     @State private var MedicineIcon: String = "pill"
-    
+
     struct DoseTime: Identifiable, Hashable {
         let id: UUID
         var date: Date
@@ -23,7 +16,7 @@ struct Medication_form: View {
             self.date = date
         }
     }
-    
+
     enum MedicineType: String, CaseIterable, Identifiable {
         case antibiotic = "Antibiotic"
         case antiviral = "Antiviral"
@@ -37,7 +30,7 @@ struct Medication_form: View {
     }
 
     @State private var selectedMedicineType: MedicineType = .vitamin
-    
+
     enum Frequency: String, CaseIterable, Identifiable {
         case once = "Once"
         case daily = "Daily"
@@ -78,10 +71,10 @@ struct Medication_form: View {
         }
     }
 
-//Notifications
+    // MARK: - Notifications
+
     func cancelNotifications(for id: String) {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
-        // Also remove any multiple-time slot notifications
         let ids = (0..<20).map { "\(id)_time_\($0)" }
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ids)
     }
@@ -99,21 +92,17 @@ struct Medication_form: View {
         }
 
         switch frequency {
-
         case .once:
-            // Fire once at the selected date+time
             let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: composeDate(date: startDate, time: timeOfDay))
             let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
             center.add(UNNotificationRequest(identifier: id, content: makeContent(), trigger: trigger))
 
         case .daily:
-            // Repeat every day at the set time
             let comps = Calendar.current.dateComponents([.hour, .minute], from: timeOfDay)
             let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
             center.add(UNNotificationRequest(identifier: id, content: makeContent(), trigger: trigger))
 
         case .multiplePerDay:
-            // One notification per time slot, all repeating daily
             for (index, slot) in multipleTimes.enumerated() {
                 let comps = Calendar.current.dateComponents([.hour, .minute], from: slot.date)
                 let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
@@ -121,15 +110,12 @@ struct Medication_form: View {
             }
 
         case .weekly:
-            // Repeat every week on the selected weekday at the set time
             var comps = Calendar.current.dateComponents([.hour, .minute], from: timeOfDay)
             comps.weekday = selectedWeekday
             let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
             center.add(UNNotificationRequest(identifier: id, content: makeContent(), trigger: trigger))
 
         case .everyNDays:
-            // iOS doesn't support "every N days" natively so we schedule
-            // 30 individual notifications spaced N days apart
             let cal = Calendar.current
             for i in 0..<30 {
                 guard let fireDate = cal.date(byAdding: .day, value: i * intervalDays, to: composeDate(date: startDate, time: timeOfDay)) else { continue }
@@ -149,11 +135,13 @@ struct Medication_form: View {
         return cal.date(from: comps) ?? date
     }
 
+    // MARK: - Body
+
     var body: some View {
         Form {
             Section(header: Text("Medicine Info")) {
                 TextField("Name", text: $MedicineName)
-                
+
                 Picker("Icon", selection: $MedicineIcon) {
                     HStack { Image(systemName: "pill"); Text("Pill") }.tag("pill")
                     HStack { Image(systemName: "pill.fill"); Text("Capsule") }.tag("pill.fill")
@@ -162,7 +150,7 @@ struct Medication_form: View {
                     HStack { Image(systemName: "capsule.on.capsule"); Text("Gummy") }.tag("capsule.on.capsule")
                     HStack { Image(systemName: "syringe"); Text("Injection") }.tag("syringe")
                 }
-                
+
                 Picker("Type", selection: $selectedMedicineType) {
                     ForEach(MedicineType.allCases) { t in
                         Text(t.rawValue).tag(t)
