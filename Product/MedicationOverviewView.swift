@@ -80,8 +80,6 @@ struct MedicationOverviewView: View {
         .onChange(of: doseLogs.count) { _, _ in rebuildOccurrences() }
     }
 
-    // MARK: - Header
-
     private var header: some View {
         HStack(alignment: .firstTextBaseline) {
             VStack(alignment: .leading, spacing: 4) {
@@ -96,8 +94,6 @@ struct MedicationOverviewView: View {
         }
     }
 
-    // MARK: - View mode toggle
-
     private var viewModeToggle: some View {
         Picker("View", selection: $viewMode) {
             ForEach(ViewMode.allCases, id: \.self) { mode in
@@ -106,8 +102,6 @@ struct MedicationOverviewView: View {
         }
         .pickerStyle(.segmented)
     }
-
-    // MARK: - Week selector
 
     private var weekSelector: some View {
         VStack(spacing: 10) {
@@ -122,15 +116,11 @@ struct MedicationOverviewView: View {
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(.blue)
                 }
-
                 Spacer()
-
                 Text("\(weekStart.formatted(.dateTime.day().month())) – \(weekDays.last?.formatted(.dateTime.day().month().year()) ?? "")")
                     .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(.secondary)
-
                 Spacer()
-
                 Button {
                     weekOffset += 1
                     if let newDate = cal.date(byAdding: .weekOfYear, value: 1, to: selectedDate) {
@@ -156,19 +146,12 @@ struct MedicationOverviewView: View {
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(isSelected ? .white : isToday ? .blue : .primary)
                             .frame(width: 34, height: 34)
-                            .background(
-                                Circle().fill(isSelected ? Color.blue : Color.clear)
-                            )
-                            .overlay(
-                                Circle()
-                                    .stroke(isToday && !isSelected ? Color.blue : Color.clear, lineWidth: 1.5)
-                            )
+                            .background(Circle().fill(isSelected ? Color.blue : Color.clear))
+                            .overlay(Circle().stroke(isToday && !isSelected ? Color.blue : Color.clear, lineWidth: 1.5))
                     }
                     .frame(maxWidth: .infinity)
                     .contentShape(Rectangle())
-                    .onTapGesture {
-                        selectedDate = cal.startOfDay(for: day)
-                    }
+                    .onTapGesture { selectedDate = cal.startOfDay(for: day) }
                 }
             }
         }
@@ -176,8 +159,6 @@ struct MedicationOverviewView: View {
         .padding(.horizontal, 14)
         .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Color(.secondarySystemGroupedBackground)))
     }
-
-    // MARK: - Day view: ring summary
 
     private var ringSummaryCard: some View {
         let takenCount = occurrences.filter { $0.status == .taken }.count
@@ -226,17 +207,12 @@ struct MedicationOverviewView: View {
         .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Color(.secondarySystemGroupedBackground)))
     }
 
-    // MARK: - Day view: timeline
-
     private var timelineCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        let historicalLogs = historicalOnlyLogs(for: selectedDate)
+        return VStack(alignment: .leading, spacing: 12) {
             Text("Timeline")
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(.gray)
-
-            // Past logs for deleted medications
-            let historicalLogs = historicalOnlyLogs(for: selectedDate)
-
             if occurrences.isEmpty && historicalLogs.isEmpty {
                 Text("No doses scheduled for this day")
                     .font(.system(size: 15))
@@ -273,7 +249,6 @@ struct MedicationOverviewView: View {
             case .upcoming: return .blue
             }
         }()
-
         return HStack(alignment: .center, spacing: 12) {
             ZStack {
                 Circle().fill(color.opacity(0.15)).frame(width: 28, height: 28)
@@ -314,7 +289,6 @@ struct MedicationOverviewView: View {
         .padding(.vertical, 10)
     }
 
-    // Row for logs whose medication has been deleted
     private func historicalRow(for log: DoseLog) -> some View {
         let status = DoseStatus(rawValue: log.status ?? "") ?? .missed
         let color: Color = {
@@ -325,7 +299,6 @@ struct MedicationOverviewView: View {
             case .upcoming: return .blue
             }
         }()
-
         return HStack(alignment: .center, spacing: 12) {
             ZStack {
                 Circle().fill(color.opacity(0.15)).frame(width: 28, height: 28)
@@ -347,8 +320,6 @@ struct MedicationOverviewView: View {
         }
         .padding(.vertical, 10)
     }
-
-    // MARK: - Week view
 
     private var weekSummaryCard: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -372,21 +343,15 @@ struct MedicationOverviewView: View {
                         Text("\(taken)/\(totalCount)")
                             .font(.system(size: 10, weight: .medium))
                             .foregroundStyle(.secondary)
-
                         ZStack(alignment: .bottom) {
                             RoundedRectangle(cornerRadius: 6)
                                 .fill(Color.gray.opacity(0.15))
                                 .frame(width: 32, height: 80)
-
                             RoundedRectangle(cornerRadius: 6)
                                 .fill(isFuture ? Color.gray.opacity(0.2) : taken == totalCount && taken > 0 ? Color.green : Color.blue)
                                 .frame(width: 32, height: max(4, 80 * ratio))
                         }
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
-                        )
-
+                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2))
                         Text(day.formatted(.dateTime.weekday(.abbreviated)))
                             .font(.system(size: 11, weight: .medium))
                             .foregroundStyle(isSelected ? .blue : .gray)
@@ -401,39 +366,24 @@ struct MedicationOverviewView: View {
 
             let weekOccs = weekDays.flatMap { occurrencesFor(day: $0) }
             let weekHistorical = weekDays.flatMap { historicalOnlyLogs(for: $0) }
-            let weekTaken = weekOccs.filter { $0.status == .taken }.count +
-                            weekHistorical.filter { $0.status == "taken" }.count
-            let weekMissed = weekOccs.filter { $0.status == .missed }.count +
-                             weekHistorical.filter { $0.status == "missed" }.count
-            let weekSkipped = weekOccs.filter { $0.status == .skipped }.count +
-                              weekHistorical.filter { $0.status == "skipped" }.count
+            let weekTaken = weekOccs.filter { $0.status == .taken }.count + weekHistorical.filter { $0.status == "taken" }.count
+            let weekMissed = weekOccs.filter { $0.status == .missed }.count + weekHistorical.filter { $0.status == "missed" }.count
+            let weekSkipped = weekOccs.filter { $0.status == .skipped }.count + weekHistorical.filter { $0.status == "skipped" }.count
 
             Divider()
 
             HStack(spacing: 20) {
                 VStack(spacing: 4) {
-                    Text("\(weekTaken)")
-                        .font(.system(size: 22, weight: .bold))
-                        .foregroundStyle(.green)
-                    Text("Taken")
-                        .font(.system(size: 12))
-                        .foregroundStyle(.secondary)
+                    Text("\(weekTaken)").font(.system(size: 22, weight: .bold)).foregroundStyle(.green)
+                    Text("Taken").font(.system(size: 12)).foregroundStyle(.secondary)
                 }
                 VStack(spacing: 4) {
-                    Text("\(weekMissed)")
-                        .font(.system(size: 22, weight: .bold))
-                        .foregroundStyle(.red)
-                    Text("Missed")
-                        .font(.system(size: 12))
-                        .foregroundStyle(.secondary)
+                    Text("\(weekMissed)").font(.system(size: 22, weight: .bold)).foregroundStyle(.red)
+                    Text("Missed").font(.system(size: 12)).foregroundStyle(.secondary)
                 }
                 VStack(spacing: 4) {
-                    Text("\(weekSkipped)")
-                        .font(.system(size: 22, weight: .bold))
-                        .foregroundStyle(.orange)
-                    Text("Skipped")
-                        .font(.system(size: 12))
-                        .foregroundStyle(.secondary)
+                    Text("\(weekSkipped)").font(.system(size: 22, weight: .bold)).foregroundStyle(.orange)
+                    Text("Skipped").font(.system(size: 12)).foregroundStyle(.secondary)
                 }
                 Spacer()
                 Text("Tap a bar to see that day")
@@ -447,8 +397,6 @@ struct MedicationOverviewView: View {
         .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Color(.secondarySystemGroupedBackground)))
     }
 
-    // MARK: - Helpers
-
     private func iconName(for status: DoseStatus) -> String {
         switch status {
         case .taken: return "checkmark"
@@ -458,7 +406,6 @@ struct MedicationOverviewView: View {
         }
     }
 
-    /// Returns logs for the given day whose medicine_ID no longer exists in MyMedication
     private func historicalOnlyLogs(for day: Date) -> [DoseLog] {
         let dayStart = cal.startOfDay(for: day)
         guard let dayEnd = cal.date(byAdding: .day, value: 1, to: dayStart) else { return [] }
@@ -470,6 +417,16 @@ struct MedicationOverviewView: View {
             else { return false }
             return t >= dayStart && t < dayEnd
         }
+    }
+
+    private func allTimesFor(med: MyMedication) -> [Date] {
+        if med.frequency == 2 {
+            if let stored = med.multiple_times, !stored.isEmpty {
+                return decodeMultipleTimes(stored)
+            }
+        }
+        if let t = med.time_of_day { return [t] }
+        return []
     }
 
     private func occurrencesFor(day: Date) -> [DoseOccurrence] {
@@ -499,8 +456,10 @@ struct MedicationOverviewView: View {
                     items.append(DoseOccurrence(med: med, medicationName: name, medicationType: type, medicationIcon: icon, scheduled: s, status: statusFor(medicineID: medID, scheduled: s)))
                 }
             case 2:
-                if let t = med.time_of_day, let s = combineDate(dayStart, time: t) {
-                    items.append(DoseOccurrence(med: med, medicationName: name, medicationType: type, medicationIcon: icon, scheduled: s, status: statusFor(medicineID: medID, scheduled: s)))
+                for t in allTimesFor(med: med) {
+                    if let s = combineDate(dayStart, time: t) {
+                        items.append(DoseOccurrence(med: med, medicationName: name, medicationType: type, medicationIcon: icon, scheduled: s, status: statusFor(medicineID: medID, scheduled: s)))
+                    }
                 }
             case 3:
                 if let t = med.time_of_day,
@@ -561,11 +520,11 @@ struct MedicationOverviewView: View {
         guard let medicineID = occurrence.med?.medicine_ID else { return }
         let log = findLog(medicineID: medicineID, scheduled: occurrence.scheduled) ?? DoseLog(context: viewContext)
         if log.log_ID == nil { log.log_ID = UUID().uuidString }
-        log.medicine_ID = medicineID
-        log.medication_name = occurrence.medicationName   // persist name for future historical display
-        log.scheduled_time = occurrence.scheduled
-        log.actual_time = Date()
-        log.status = newStatus.rawValue
+        log.medicine_ID     = medicineID
+        log.medication_name = occurrence.medicationName
+        log.scheduled_time  = occurrence.scheduled
+        log.actual_time     = Date()
+        log.status          = newStatus.rawValue
         do {
             try viewContext.save()
             rebuildOccurrences()

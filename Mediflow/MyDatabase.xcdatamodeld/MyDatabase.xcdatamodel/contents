@@ -12,6 +12,8 @@
     </entity>
     <entity name="Medications" representedClassName="Medications" syncable="YES" codeGenerationType="class"/>
     <entity name="MyMedication" representedClassName=".MyMedication" syncable="YES" codeGenerationType="class">
+        <attribute name="color_tag" optional="YES" attributeType="String"/>
+        <attribute name="dose" optional="YES" attributeType="String"/>
         <attribute name="end_date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="frequency" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="has_end_date" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
@@ -20,6 +22,8 @@
         <attribute name="medication_name" optional="YES" attributeType="String"/>
         <attribute name="medication_type" optional="YES" attributeType="String"/>
         <attribute name="medicine_ID" optional="YES" attributeType="String"/>
+        <attribute name="multiple_times" optional="YES" attributeType="String"/>
+        <attribute name="notes" optional="YES" attributeType="String"/>
         <attribute name="selected_days" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="start_date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="time_of_day" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
